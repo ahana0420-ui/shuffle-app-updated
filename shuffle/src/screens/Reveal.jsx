@@ -2,15 +2,17 @@ import Header from "../components/Header.jsx";
 import Footer from "../components/Footer.jsx";
 import SafetyNote from "../components/SafetyNote.jsx";
 import Icon from "../components/Icon.jsx";
+import SoundToggle from "../components/SoundToggle.jsx";
 import { FOCUSES, labelFor } from "../data/options.js";
 import { equipmentText } from "../logic.js";
 
-export default function Reveal({ result, music, onStart, onReshuffle, onPreferences, onHome }) {
+export default function Reveal({ result, music, onStart, onReshuffle, onPreferences, onHome, soundEnabled, onToggleSound }) {
   const { workout, session, minutes } = result;
 
   return (
     <div className="app">
       <Header onHome={onHome}>
+        <SoundToggle enabled={soundEnabled} onToggle={onToggleSound} />
         <button className="btn btn-sm hide-sm" onClick={onPreferences}>Edit preferences</button>
         <button className="btn btn-sm btn-yellow" onClick={onHome}>Home</button>
       </Header>

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Header from "../components/Header.jsx";
+import SoundToggle from "../components/SoundToggle.jsx";
 import Footer from "../components/Footer.jsx";
 import SafetyNote from "../components/SafetyNote.jsx";
 import Icon from "../components/Icon.jsx";
@@ -39,7 +40,7 @@ function Section({ n, title, sub, badge, children }) {
   );
 }
 
-export default function Preferences({ initial, onShuffle, onSurprise, onHome }) {
+export default function Preferences({ initial, onShuffle, onSurprise, onHome, soundEnabled, onToggleSound }) {
   // null means "not chosen" - the app fills in a sensible default.
   const [mood, setMood] = useState(initial.mood === "surprise" ? null : initial.mood);
   const [focus, setFocus] = useState(initial.focus === "surprise" ? null : initial.focus);
@@ -71,6 +72,7 @@ export default function Preferences({ initial, onShuffle, onSurprise, onHome }) 
   return (
     <div className="app">
       <Header onHome={onHome}>
+        <SoundToggle enabled={soundEnabled} onToggle={onToggleSound} />
         <button className="btn btn-sm btn-yellow" onClick={onHome}>Back to start</button>
       </Header>
 

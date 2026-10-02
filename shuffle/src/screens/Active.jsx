@@ -1,10 +1,12 @@
-import { useEffect, useReducer, useState } from "react";
+import { useEffect, useReducer, useRef, useState } from "react";
 import Header from "../components/Header.jsx";
 import Footer from "../components/Footer.jsx";
 import SafetyNote from "../components/SafetyNote.jsx";
-import SquatFigure from "../components/SquatFigure.jsx";
 import Icon from "../components/Icon.jsx";
+import SoundToggle from "../components/SoundToggle.jsx";
+import { playSound, stopSounds } from "../sound.js";
 import { formatClock } from "../logic.js";
+import { exerciseInstructions } from "../data/instructions.js";
 
 // status: ready (not started) | running | paused
 // phase:  work | rest
@@ -20,28 +22,64 @@ function makeReducer(steps) {
       case "PREV": return go(state, Math.max(0, state.i - 1));
       case "TICK": {
         if (state.status !== "running") return state;
-        if (state.left > 1) return { ...state, left: state.left - 1 };
+        if (state.left > 1) return {
+          ...state,
+          left: state.left - 1,
+          tickCue: state.phase === "work" ? state.tickCue + 1 : state.tickCue,
+        };
         const step = steps[state.i];
-        if (state.phase === "work" && step.rest > 0 && state.i < last) return { ...state, phase: "rest", left: step.rest };
-        if (state.i < last) return go(state, state.i + 1);
-        return { ...state, left: 0, status: "paused", done: true };
+        const buzzerCue = state.phase === "work" ? state.buzzerCue + 1 : state.buzzerCue;
+        if (state.phase === "work" && step.rest > 0 && state.i < last) return { ...state, phase: "rest", left: step.rest, buzzerCue };
+        if (state.i < last) return { ...go(state, state.i + 1), buzzerCue };
+        return { ...state, left: 0, status: "paused", done: true, buzzerCue };
       }
       default: return state;
     }
   };
 }
 
-export default function Active({ result, onFinish, onExit }) {
+export default function Active({ result, onFinish, onExit, soundEnabled, onToggleSound }) {
   const { workout, session, minutes } = result;
   const steps = session.steps;
-  const [state, dispatch] = useReducer(makeReducer(steps), { i: 0, phase: "work", left: steps[0].seconds, status: "ready", done: false });
+  const [state, dispatch] = useReducer(makeReducer(steps), { i: 0, phase: "work", left: steps[0].seconds, status: "ready", done: false, tickCue: 0, buzzerCue: 0 });
   const [confirmExit, setConfirmExit] = useState(false);
+  const previousIndex = useRef(0);
+  const previousTickCue = useRef(0);
+  const previousBuzzerCue = useRef(0);
 
-  // One tick per second while running.
+  useEffect(() => {
+    if (state.i !== previousIndex.current) playSound("transition", soundEnabled);
+    previousIndex.current = state.i;
+  }, [state.i, soundEnabled]);
+
+  useEffect(() => {
+    if (state.tickCue !== previousTickCue.current) {
+      previousTickCue.current = state.tickCue;
+      playSound("timerTick", soundEnabled);
+    }
+    if (state.buzzerCue !== previousBuzzerCue.current) {
+      previousBuzzerCue.current = state.buzzerCue;
+      playSound("buzzer", soundEnabled);
+    }
+  }, [state.tickCue, state.buzzerCue, soundEnabled]);
+
+  // Schedule against a fixed deadline so late browser callbacks don't make the timer drift.
   useEffect(() => {
     if (state.status !== "running") return;
-    const id = setInterval(() => dispatch({ type: "TICK" }), 1000);
-    return () => clearInterval(id);
+    const now = () => window.performance.now();
+    let deadline = now() + 1000;
+    let timeoutId;
+    const schedule = () => {
+      timeoutId = window.setTimeout(() => {
+        const current = now();
+        const elapsed = Math.max(1, Math.floor((current - deadline) / 1000) + 1);
+        for (let i = 0; i < elapsed; i++) dispatch({ type: "TICK" });
+        deadline += elapsed * 1000;
+        schedule();
+      }, Math.max(0, deadline - now()));
+    };
+    schedule();
+    return () => window.clearTimeout(timeoutId);
   }, [state.status]);
 
   // Finished the last exercise on its own.
@@ -50,6 +88,7 @@ export default function Active({ result, onFinish, onExit }) {
   }, [state.done]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const step = steps[state.i];
+  const instructions = exerciseInstructions(step.key, step.name);
   const resting = state.phase === "rest";
   const total = resting ? step.rest : step.seconds;
   const progress = total ? (total - state.left) / total : 0;
@@ -62,6 +101,7 @@ export default function Active({ result, onFinish, onExit }) {
   return (
     <div className="app">
       <Header onHome={() => setConfirmExit(true)}>
+        <SoundToggle enabled={soundEnabled} onToggle={onToggleSound} />
         <span className="tag tag-pink hide-sm">Live session</span>
         <button className="btn btn-sm btn-pink" onClick={() => setConfirmExit(true)}>
           Exit <Icon name="close" size={14} />
@@ -92,22 +132,34 @@ export default function Active({ result, onFinish, onExit }) {
                 <h1 className="display h2">{step.name}</h1>
                 <span className="tag tag-pink">{step.area}</span>
               </div>
-              <div className="stage">
-                {step.fig === "squat" ? (
-                  <SquatFigure paused={state.status !== "running"} />
-                ) : (
-                  <div className="poster">
-                    <div className="big">{String(state.i % workout.moves.length + 1).padStart(2, "0")}</div>
-                    <span className="tag tag-yellow">{resting ? "Rest" : "Move!"}</span>
-                  </div>
-                )}
+              <div className="shuffle-stage" aria-hidden="true">
+                <svg viewBox="0 0 560 240" role="presentation">
+                  <path d="M62 122c30-63 74-78 116-35s54 88 104 35 77-79 125-32 65 76 103 38" fill="none" stroke="var(--black)" strokeWidth="10" strokeLinecap="round" strokeDasharray="2 17" />
+                  <path d="M94 176 140 44l46 132z" fill="var(--yellow)" stroke="var(--black)" strokeWidth="6" />
+                  <circle cx="278" cy="116" r="76" fill="var(--pink)" stroke="var(--black)" strokeWidth="7" />
+                  <path d="m252 116 20 20 38-43" fill="none" stroke="var(--white)" strokeWidth="12" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="m420 43 10 34 34 10-34 10-10 34-10-34-34-10 34-10z" fill="var(--cyan)" stroke="var(--black)" strokeWidth="5" strokeLinejoin="round" />
+                  <circle cx="466" cy="177" r="19" fill="var(--blue)" stroke="var(--black)" strokeWidth="5" />
+                </svg>
+                <span className="stage-label">{resting ? "Catch your breath" : "Your move"}</span>
               </div>
               <p className="cue">Form tip: {step.cue}</p>
+              <details className="instruction-panel">
+                <summary>How to do it <span aria-hidden="true">＋</span></summary>
+                <div className="instruction-content">
+                  <h2>Starting position</h2>
+                  <p>{instructions?.start || `Instructions for ${step.name} need review: confirm its starting position before adding movement steps.`}</p>
+                  <h2>How to do it</h2>
+                  {instructions ? <ol>{instructions.steps.map((line, index) => <li key={index}>{line}</li>)}</ol> : <p>This move has been flagged for clarification and does not yet have verified step-by-step guidance.</p>}
+                  <h2>Watch out for</h2>
+                  <p>{instructions ? `${instructions.watch} ${step.cue}` : step.cue}</p>
+                </div>
+              </details>
             </section>
 
             <section className="card timer-card" aria-label="Timer">
               <span className="tag tag-yellow">
-                {state.status === "ready" ? "Ready when you are" : resting ? "Rest" : state.status === "paused" ? "Paused" : "Go"}
+                {resting ? "REST" : state.status === "ready" ? "Ready when you are" : state.status === "paused" ? "Paused" : "Go"}
               </span>
               <div className="ring">
                 <svg viewBox="0 0 200 200" aria-hidden="true">
@@ -117,7 +169,7 @@ export default function Active({ result, onFinish, onExit }) {
                 </svg>
                 <div className="time" role="timer">
                   {formatClock(state.left)}
-                  <small>{resting ? "Rest" : "Seconds left"}</small>
+                  <small>{resting ? "REST" : "Seconds left"}</small>
                 </div>
               </div>
               {resting && next && <p style={{ fontWeight: 700 }}>Up next: {next.name}</p>}
@@ -140,7 +192,7 @@ export default function Active({ result, onFinish, onExit }) {
               </button>
             )}
             <button className="btn btn-yellow" onClick={() => dispatch({ type: "NEXT" })} disabled={state.i === steps.length - 1}>
-              Next <Icon name="next" size={18} />
+              {resting ? "Skip rest" : "Next"} <Icon name="next" size={18} />
             </button>
             <button className="btn btn-pink" onClick={() => onFinish(completedNow)}>
               <Icon name="flag" size={18} /> Finish
@@ -169,7 +221,7 @@ export default function Active({ result, onFinish, onExit }) {
             <p style={{ marginBottom: 18 }}>You're on exercise {state.i + 1} of {steps.length}. Leaving now won't count this workout as complete.</p>
             <div className="row">
               <button className="btn btn-blue" onClick={() => setConfirmExit(false)}>Keep going</button>
-              <button className="btn" onClick={onExit}>Quit</button>
+              <button className="btn" onClick={() => { stopSounds(); onExit(); }}>Quit</button>
             </div>
           </div>
         </div>

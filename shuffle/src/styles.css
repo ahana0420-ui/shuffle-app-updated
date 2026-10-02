@@ -167,10 +167,20 @@ h1, h2, h3, p { margin: 0; }
 .chip.on { background: var(--yellow); } .chip.done { background: #e5e2e1; opacity: .75; }
 .active-grid { display: grid; gap: 22px; margin: 22px 0; }
 @media (min-width: 900px) { .active-grid { grid-template-columns: 1.3fr 1fr; } }
-.stage { background: #f6f3f2; border: 3px solid var(--black); background-image: radial-gradient(circle, rgba(10,10,10,.18) 1.4px, transparent 1.4px); background-size: 18px 18px; min-height: 280px; display: grid; place-items: center; padding: 16px; margin: 16px 0; position: relative; overflow: hidden; }
-.stage svg { max-height: 280px; width: auto; max-width: 100%; }
-.poster { text-align: center; }
-.poster .big { font-family: var(--font-brand); font-weight: 900; font-size: clamp(90px, 20vw, 150px); line-height: 1; color: var(--pink); text-shadow: 6px 6px 0 var(--black); }
+.shuffle-stage { min-height: 230px; margin: 16px 0; padding: 12px 18px; border: 3px solid var(--black); box-shadow: var(--shadow-sm); position: relative; overflow: hidden; display: grid; place-items: center; background: var(--blue); }
+.shuffle-stage::before { content: ""; position: absolute; inset: 0; background-image: radial-gradient(var(--white) 2px, transparent 2px); background-size: 22px 22px; opacity: .28; }
+.shuffle-stage svg { width: 100%; max-width: 560px; max-height: 205px; z-index: 1; filter: drop-shadow(3px 3px 0 var(--black)); }
+.stage-label { position: absolute; z-index: 2; bottom: 12px; right: 12px; padding: 5px 9px; background: var(--white); border: 2px solid var(--black); box-shadow: 2px 2px 0 var(--black); font: 800 10px var(--font-brand); text-transform: uppercase; transform: rotate(-2deg); }
+.instruction-panel { margin-top: 14px; border: 3px solid var(--black); box-shadow: var(--shadow-sm); background: var(--white); }
+.instruction-panel summary { cursor: pointer; list-style: none; display: flex; justify-content: space-between; gap: 12px; align-items: center; padding: 14px 16px; background: var(--cyan); font: 800 16px var(--font-head); text-transform: uppercase; }
+.instruction-panel summary::-webkit-details-marker { display: none; }
+.instruction-panel summary span { font: 800 22px var(--font-body); transition: transform .15s; }
+.instruction-panel[open] summary span { transform: rotate(45deg); }
+.instruction-content { padding: 16px; font-size: 15px; }
+.instruction-content h2 { margin: 14px 0 5px; font: 800 13px var(--font-brand); letter-spacing: .04em; text-transform: uppercase; }
+.instruction-content h2:first-child { margin-top: 0; }
+.instruction-content ol { margin: 6px 0 12px; padding-left: 24px; }
+.instruction-content li { padding-left: 3px; margin: 6px 0; }
 .cue { background: var(--yellow); border: 3px solid var(--black); padding: 12px 16px; font-weight: 700; }
 .timer-card { text-align: center; }
 .ring { position: relative; width: min(260px, 70vw); margin: 10px auto; aspect-ratio: 1; }
@@ -200,6 +210,8 @@ h1, h2, h3, p { margin: 0; }
   .wordmark { font-size: 20px; }
   .wordmark i { display: none; }
   .card, .pref-section, .banner { padding: 18px; }
+  .shuffle-stage { min-height: 180px; }
+  .shuffle-stage svg { max-height: 155px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .disc svg, .wiggle, .star, .pop-in { animation: none !important; }

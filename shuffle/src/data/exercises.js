@@ -1,9 +1,9 @@
 // Shared exercise catalog. New workouts reference these by key.
-// [key, name, area, form cue, optional figure]
+// [key, name, area, form cue]
 const LIST = [
   // bodyweight / cardio
   ["jumping-jacks", "Jumping jacks", "Full body", "Step side to side instead of jumping if you want low impact."],
-  ["squat", "Bodyweight squats", "Lower body", "Sit hips back, chest lifted, knees tracking over toes.", "squat"],
+  ["squat", "Bodyweight squats", "Lower body", "Sit hips back, chest lifted, knees tracking over toes."],
   ["push-ups", "Push-ups", "Upper body", "Hands on a wall, counter or knees for an easier version."],
   ["reverse-lunge", "Reverse lunges", "Lower body", "Step back softly and keep your front knee comfortable."],
   ["mountain-climbers", "Mountain climbers", "Core & cardio", "Hands under shoulders. Slow it down or step the feet instead."],
@@ -79,7 +79,7 @@ const LIST = [
   ["heel-touches", "Heel touches", "Obliques", "Knees bent on your back, reach side to side toward your heels."],
 
   // dumbbells
-  ["goblet-squat", "Goblet squat", "Lower body", "Hold one dumbbell at your chest and sit down between your hips.", "squat"],
+  ["goblet-squat", "Goblet squat", "Lower body", "Hold one dumbbell at your chest and sit down between your hips."],
   ["db-thruster", "Dumbbell thrusters", "Full body", "Squat with dumbbells at your shoulders, then press up as you stand. Go light."],
   ["db-row-single", "Single-arm row", "Back", "Support yourself on a bench or chair. Pull elbow to hip and switch halfway."],
   ["db-rdl", "Romanian deadlift", "Hamstrings", "Soft knees, push hips back, dumbbells slide down your legs."],
@@ -118,7 +118,7 @@ const LIST = [
   ["goblet-march", "Goblet march", "Core & legs", "Hold the bell at your chest and march slowly with tall posture."],
 
   // bands
-  ["band-squat", "Banded squat", "Lower body", "Band above the knees, push knees gently out as you sit.", "squat"],
+  ["band-squat", "Banded squat", "Lower body", "Band above the knees, push knees gently out as you sit."],
   ["band-row", "Banded row", "Back", "Anchor the band, pull elbows back and squeeze shoulder blades."],
   ["band-pullapart", "Banded pull-apart", "Shoulders", "Arms straight in front, pull the band wide to chest height."],
   ["band-glute-bridge", "Banded glute bridge", "Glutes", "Press through heels and lift hips. Lower slowly."],
@@ -196,7 +196,7 @@ const LIST = [
 ];
 
 export const X = {};
-for (const [key, name, area, cue, fig] of LIST) {
+for (const [key, name, area, cue] of LIST) {
   if (X[key]) throw new Error(`Duplicate exercise key: ${key}`);
-  X[key] = fig ? { name, area, cue, fig } : { name, area, cue };
+  X[key] = { key, name, area, cue };
 }

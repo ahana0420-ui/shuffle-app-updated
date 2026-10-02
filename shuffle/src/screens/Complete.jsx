@@ -1,12 +1,13 @@
 import Header from "../components/Header.jsx";
 import Footer from "../components/Footer.jsx";
 import Icon from "../components/Icon.jsx";
+import SoundToggle from "../components/SoundToggle.jsx";
 
-export default function Complete({ result, completed, onShuffleAgain, onPreferences, onHome }) {
+export default function Complete({ result, completed, onShuffleAgain, onPreferences, onHome, soundEnabled, onToggleSound }) {
   const { workout, session, minutes } = result;
   return (
     <div className="app">
-      <Header onHome={onHome} />
+      <Header onHome={onHome}><SoundToggle enabled={soundEnabled} onToggle={onToggleSound} /></Header>
       <main className="page">
         <section className="done-hero" style={{ background: "var(--pink)" }}>
           <span className="star" style={{ top: 24, left: "8%" }} aria-hidden="true">★</span>

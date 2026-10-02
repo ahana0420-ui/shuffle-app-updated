@@ -5,7 +5,7 @@
 // levels:    beginner | intermediate | advanced
 // equipment: items REQUIRED (empty list = no equipment needed). "gym" means a gym is needed.
 // mat:       true if a mat is helpful (optional, never required)
-// moves:     the exercises of one round. "fig: 'squat'" shows the animated squat figure.
+// moves:     the exercises of one round, resolved from the local exercise catalogue.
 //            Entries are either full objects or keys from exercises.js.
 //
 // Variety fields (all optional):
@@ -26,7 +26,7 @@ const LEGACY = [
     equipment: [], mat: false,
     moves: [
       { name: "Jumping jacks", area: "Full body", cue: "Step side to side instead of jumping if you want low impact." },
-      { name: "Bodyweight squats", area: "Lower body", fig: "squat", cue: "Sit hips back, chest lifted, knees tracking over toes." },
+      { name: "Bodyweight squats", area: "Lower body", cue: "Sit hips back, chest lifted, knees tracking over toes." },
       { name: "Push-ups", area: "Upper body", cue: "Hands on a wall, counter or knees for an easier version." },
       { name: "Reverse lunges", area: "Lower body", cue: "Step back softly and keep your front knee comfortable." },
       { name: "Mountain climbers", area: "Core", cue: "Hands under shoulders. Slow it down or step the feet instead." },
@@ -38,7 +38,7 @@ const LEGACY = [
     moods: ["strong", "energy"], levels: ["intermediate", "advanced"],
     equipment: ["dumbbells"], mat: false,
     moves: [
-      { name: "Goblet squat", area: "Lower body", fig: "squat", cue: "Hold one dumbbell at your chest and sit down between your hips." },
+      { name: "Goblet squat", area: "Lower body", cue: "Hold one dumbbell at your chest and sit down between your hips." },
       { name: "Bent-over row", area: "Back", cue: "Hinge at the hips, flat back, pull elbows toward your ribs." },
       { name: "Shoulder press", area: "Shoulders", cue: "Press overhead without arching your lower back." },
       { name: "Romanian deadlift", area: "Hamstrings", cue: "Soft knees, push hips back, dumbbells slide down your legs." },
@@ -51,7 +51,7 @@ const LEGACY = [
     moods: ["bored", "energy", "chill"], levels: ["beginner", "intermediate"],
     equipment: ["bands"], mat: false,
     moves: [
-      { name: "Banded squat", area: "Lower body", fig: "squat", cue: "Band above the knees, push knees gently out as you sit." },
+      { name: "Banded squat", area: "Lower body", cue: "Band above the knees, push knees gently out as you sit." },
       { name: "Banded row", area: "Back", cue: "Anchor the band, pull elbows back and squeeze shoulder blades." },
       { name: "Banded pull-apart", area: "Shoulders", cue: "Arms straight in front, pull the band wide to chest height." },
       { name: "Banded glute bridge", area: "Glutes", cue: "Press through heels and lift hips. Lower slowly." },
@@ -65,7 +65,7 @@ const LEGACY = [
     equipment: ["kettlebell"], mat: false,
     moves: [
       { name: "Kettlebell deadlift", area: "Hamstrings", cue: "Hinge at the hips with a flat back and pick the bell up tall." },
-      { name: "Goblet squat", area: "Lower body", fig: "squat", cue: "Hold the bell at your chest and keep your elbows tucked in." },
+      { name: "Goblet squat", area: "Lower body", cue: "Hold the bell at your chest and keep your elbows tucked in." },
       { name: "Kettlebell halo", area: "Shoulders", cue: "Circle the bell around your head slowly. Switch direction halfway." },
       { name: "Kettlebell swing", area: "Posterior chain", cue: "Hips snap forward. Swap for deadlifts if the swing feels new." },
       { name: "Single-arm press", area: "Shoulders", cue: "Press overhead, ribs down. Switch arms halfway through." },
@@ -78,7 +78,7 @@ const LEGACY = [
     equipment: ["gym"], mat: false,
     moves: [
       { name: "Easy cardio warm-up", area: "Cardio", cue: "Bike, rower or treadmill at a pace where you could chat." },
-      { name: "Goblet squat", area: "Lower body", fig: "squat", cue: "Choose a dumbbell that feels challenging but controlled." },
+      { name: "Goblet squat", area: "Lower body", cue: "Choose a dumbbell that feels challenging but controlled." },
       { name: "Seated cable row", area: "Back", cue: "Pull handles to your ribs and keep your chest tall." },
       { name: "Chest press machine", area: "Chest", cue: "Adjust the seat first. Press smoothly, no locking out hard." },
       { name: "Leg press", area: "Lower body", cue: "Use a moderate load, and stop short of locking your knees." },
@@ -129,7 +129,7 @@ const LEGACY = [
     moods: ["chill", "bored", "energy", "stressed"], levels: ["beginner", "intermediate"],
     equipment: [], mat: false,
     moves: [
-      { name: "Bodyweight squats", area: "Lower body", fig: "squat", cue: "Sit back as if reaching for a chair. Stand tall." },
+      { name: "Bodyweight squats", area: "Lower body", cue: "Sit back as if reaching for a chair. Stand tall." },
       { name: "Reverse lunges", area: "Lower body", cue: "Step back, keep your front heel planted. Hold a wall for balance if you like." },
       { name: "Glute bridge", area: "Glutes", cue: "Lie on your back, press through heels, lift hips." },
       { name: "Side lunges", area: "Inner thighs", cue: "Step wide, sit into one hip, push back to center." },
@@ -144,7 +144,7 @@ const LEGACY = [
     moves: [
       { name: "Banded glute bridge", area: "Glutes", cue: "Band above knees, press out as you lift hips." },
       { name: "Banded lateral walk", area: "Glutes", cue: "Stay low with toes forward and take small side steps." },
-      { name: "Banded squat", area: "Lower body", fig: "squat", cue: "Keep knees pressing out against the band." },
+      { name: "Banded squat", area: "Lower body", cue: "Keep knees pressing out against the band." },
       { name: "Donkey kick", area: "Glutes", cue: "On hands and knees, press one heel up toward the ceiling. Switch halfway." },
       { name: "Fire hydrant", area: "Glutes", cue: "Lift the knee out to the side without twisting your hips. Switch halfway." },
       { name: "Banded clamshell", area: "Hips", cue: "Lie on your side and open the top knee. Switch halfway." },
@@ -155,7 +155,7 @@ const LEGACY = [
     moods: ["strong", "energy"], levels: ["intermediate", "advanced"],
     equipment: ["dumbbells"], mat: false,
     moves: [
-      { name: "Goblet squat", area: "Lower body", fig: "squat", cue: "Hold one dumbbell at your chest and squat to a comfortable depth." },
+      { name: "Goblet squat", area: "Lower body", cue: "Hold one dumbbell at your chest and squat to a comfortable depth." },
       { name: "Romanian deadlift", area: "Hamstrings", cue: "Push hips back with a flat spine and soft knees." },
       { name: "Weighted reverse lunge", area: "Lower body", cue: "Alternate legs with a controlled step back." },
       { name: "Dumbbell glute bridge", area: "Glutes", cue: "Rest a dumbbell on your hips and drive up through your heels." },
@@ -236,7 +236,7 @@ const LEGACY = [
       { name: "Marching", area: "Cardio", cue: "Lift your knees comfortably and swing your arms." },
       { name: "Shoulder circles", area: "Shoulders", cue: "Big circles forwards, then backwards." },
       { name: "Gentle knee lifts", area: "Legs", cue: "Lift one knee and touch with the opposite hand." },
-      { name: "Small step-out squats", area: "Lower body", fig: "squat", cue: "Step out and sink slightly. Choose any depth." },
+      { name: "Small step-out squats", area: "Lower body", cue: "Step out and sink slightly. Choose any depth." },
       { name: "Standing cross-crunch", area: "Core", cue: "Bring elbow toward opposite knee, standing tall." },
       { name: "Step jacks", area: "Cardio", cue: "Step one foot out and reach your arms overhead. Alternate." },
     ],

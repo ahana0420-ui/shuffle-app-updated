@@ -3,13 +3,15 @@ import Footer from "../components/Footer.jsx";
 import HeroArt from "../components/HeroArt.jsx";
 import SafetyNote from "../components/SafetyNote.jsx";
 import Icon from "../components/Icon.jsx";
+import SoundToggle from "../components/SoundToggle.jsx";
 
-export default function Home({ onSurprise, onPreferences }) {
+export default function Home({ onSurprise, onPreferences, soundEnabled, onToggleSound }) {
   const scrollToHow = () => document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth" });
 
   return (
     <div className="app">
       <Header onHome={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
+        <SoundToggle enabled={soundEnabled} onToggle={onToggleSound} />
         <button className="btn btn-sm hide-sm" onClick={scrollToHow}>How it works</button>
         <button className="btn btn-sm btn-pink" onClick={onPreferences}>Get started</button>
       </Header>
